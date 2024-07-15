@@ -1,7 +1,9 @@
 import { useState } from "react"
 import "./App.css"
+import { useEffect } from "react"
 
 let order = 0
+let isAllClicked = false
 
 function App() {
 	const getBoxes = (type) => {
@@ -40,11 +42,30 @@ function App() {
 
 	const [boxState, setBoxState] = useState(getBoxes("initial"))
 
+	useEffect(() => {
+		if (boxState.some((box) => !box.isClicked)) {
+			isAllClicked = false
+		} else {
+			isAllClicked = true
+		}
+
+		if (isAllClicked) {
+			boxState.forEach((item, index) => {
+				return setTimeout(() => {
+					let tempBox = [...boxState]
+					tempBox[index].isClicked = false
+					setBoxState(tempBox)
+				}, 1000 * (index + 1))
+			})
+		}
+	}, [boxState])
+
 	const changeColor = (i, j) => {
 		let temp = [...boxState]
 		const selectedBox = temp.find((item) => item.i === i && item.j === j)
 		selectedBox.isClicked = true
 		selectedBox.order = ++order
+		temp.sort((a, b) => (a.order > b.order ? 1 : -1))
 		setBoxState(temp)
 	}
 
